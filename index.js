@@ -28,6 +28,7 @@ async function run() {
     const instructorCollection = client.db('school').collection('instructor')
     const classesCollection = client.db('school').collection('classes')
     const userCollection = client.db('school').collection('user')
+    const selectCollection = client.db('school').collection('selected')
 
     app.get('/instructors', async(req, res) => {
         const result = await instructorCollection.find().toArray()
@@ -36,6 +37,19 @@ async function run() {
 
     app.get('/classes', async(req, res) => {
         const result = await classesCollection.find().toArray()
+        res.send(result)
+    })
+
+    app.post('/select', async(req, res) => {
+        const cls = req.body;
+        const result = await selectCollection.insertOne(cls)
+        res.send(result)
+    })
+
+    app.get('/select', async(req, res) => {
+        const email = req.query.email;
+        const query = {email: email}
+        const result = await selectCollection.find(query).toArray()
         res.send(result)
     })
 

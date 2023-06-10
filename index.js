@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 require('dotenv').config()
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const cors = require('cors')
 const port = process.env.PORT || 5000
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -49,7 +50,7 @@ async function run() {
     app.get('/select', async(req, res) => {
         const email = req.query.email;
         const query = {email: email}
-        const result = await selectCollection.find(query).toArray()
+        const result = await selectCollection.find(query).toArray(  )
         res.send(result)
     })
 
@@ -64,6 +65,19 @@ async function run() {
         const user = req.body;
         const result = await userCollection.insertOne(user)
         res.send(result)
+    })
+
+    app.post('/payment-intent', async(req, res) => {
+      const {price} = req.body;
+      const amount = price*100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+      })
+      res.send(
+        {clientSecret: paymentIntent.client_secret}
+      )
     })
 
     // Send a ping to confirm a successful connection

@@ -103,6 +103,18 @@ async function run() {
       res.send(result)
     })
 
+    app.patch('/deny/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const updatedDoc = {
+        $set: {
+          status: 'denied'
+        }
+      }
+      const result = await classesCollection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+
     app.patch('/make-instructor', async(req, res) => {
       const { email } = req.body;
       console.log(email)

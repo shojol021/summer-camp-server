@@ -47,10 +47,18 @@ async function run() {
       res.send(result)
     })
 
+
     app.get('/select', async (req, res) => {
       const email = req.query.email;
       const query = { email: email }
       const result = await selectCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/user-classes', async(req, res) => {
+      const email = req.query.email;
+      const query = {instructorEmail: email}
+      const result = await classesCollection.find(query).toArray()
       res.send(result)
     })
 
@@ -61,7 +69,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/allclasses', async(req, res) => {
+    app.get('/allclasses', async (req, res) => {
       const result = await classesCollection.find().toArray()
       res.send(result)
     })
@@ -72,15 +80,21 @@ async function run() {
       res.send(result)
     })
 
-    app.post('/class', async(req, res) => {
+    app.post('/class', async (req, res) => {
       const cls = req.body;
       const result = await classesCollection.insertOne(cls)
       res.send(result)
     })
 
+    app.post('/instructor', async (req, res) => {
+      const instructor = req.body
+      console.log(instructor)
+      const result = await instructorCollection.insertOne(instructor)
+      res.send(result)
+    })
+
     app.patch('/user', async (req, res) => {
       const { email } = req.body;
-      console.log(email)
       const query = { email: email }
       const updatedDoc = {
         $set: {
@@ -91,9 +105,9 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/make-approved/:id', async(req, res) => {
+    app.patch('/make-approved/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)}
+      const filter = { _id: new ObjectId(id) }
       const updatedDoc = {
         $set: {
           status: 'approved'
@@ -103,9 +117,9 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/deny/:id', async(req, res) => {
+    app.patch('/deny/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)}
+      const filter = { _id: new ObjectId(id) }
       const updatedDoc = {
         $set: {
           status: 'denied'
@@ -115,7 +129,7 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/make-instructor', async(req, res) => {
+    app.patch('/make-instructor', async (req, res) => {
       const { email } = req.body;
       console.log(email)
       const query = { email: email }
@@ -145,6 +159,14 @@ async function run() {
       res.send(
         { clientSecret: paymentIntent.client_secret }
       )
+    })
+
+    app.delete('/instructor/:email', async (req, res) => {
+      const  email = req.params.email;
+      console.log('emai', email)
+      const query = { email: email }
+      const result = await instructorCollection.deleteOne(query)
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection

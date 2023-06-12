@@ -30,6 +30,7 @@ async function run() {
     const classesCollection = client.db('school').collection('classes')
     const userCollection = client.db('school').collection('user')
     const selectCollection = client.db('school').collection('selected')
+    const enrolledCollection = client.db('school').collection('enrolled')
 
     app.get('/instructors', async (req, res) => {
       const result = await instructorCollection.find().toArray()
@@ -64,6 +65,7 @@ async function run() {
 
     app.get('/users', async (req, res) => {
       const email = req.query.email
+      console.log(email)
       const query = { email: email }
       const result = await userCollection.findOne(query)
       res.send(result)
@@ -71,6 +73,19 @@ async function run() {
 
     app.get('/allclasses', async (req, res) => {
       const result = await classesCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.get('/enrolled/:email', async(req, res) => {
+      const email = req.params.email;
+      const query = {email: email}
+      const result = await enrolledCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.post('/enrolled', async(req, res) => {
+      const cls = req.body;
+      const result = await enrolledCollection.insertOne(cls)
       res.send(result)
     })
 
@@ -88,7 +103,6 @@ async function run() {
 
     app.post('/instructor', async (req, res) => {
       const instructor = req.body
-      console.log(instructor)
       const result = await instructorCollection.insertOne(instructor)
       res.send(result)
     })
@@ -131,7 +145,6 @@ async function run() {
 
     app.patch('/make-instructor', async (req, res) => {
       const { email } = req.body;
-      console.log(email)
       const query = { email: email }
       const updatedDoc = {
         $set: {
@@ -150,7 +163,6 @@ async function run() {
     app.post('/payment-intent', async (req, res) => {
       const { price } = req.body;
       const amount = price * 100;
-      console.log(price, amount)
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
         currency: 'usd',
@@ -163,7 +175,6 @@ async function run() {
 
     app.delete('/instructor/:email', async (req, res) => {
       const  email = req.params.email;
-      console.log('emai', email)
       const query = { email: email }
       const result = await instructorCollection.deleteOne(query)
       res.send(result)
@@ -171,7 +182,6 @@ async function run() {
 
     app.delete(`/select/:id`, async(req, res) => {
       const id = req.params.id;
-      console.log('id', id)
       const query = {_id: id}
       const result = await selectCollection.deleteOne(query)
       res.send(result)

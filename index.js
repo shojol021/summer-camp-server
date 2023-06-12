@@ -68,6 +68,7 @@ async function run() {
       console.log(email)
       const query = { email: email }
       const result = await userCollection.findOne(query)
+      console.log(result)
       res.send(result)
     })
 
@@ -83,6 +84,11 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/popular', async(req, res) => {
+      const result = await enrolledCollection.find().toArray()
+      res.send(result)
+    })
+
     app.post('/enrolled', async(req, res) => {
       const cls = req.body;
       const result = await enrolledCollection.insertOne(cls)
@@ -91,6 +97,11 @@ async function run() {
 
     app.post('/users', async (req, res) => {
       const user = req.body;
+      const query = {email: user.email}
+      const existingUser = await userCollection.findOne(query)
+      if(existingUser){
+        return res.send({message: "User already exis"})
+      }
       const result = await userCollection.insertOne(user)
       res.send(result)
     })
